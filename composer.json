@@ -1,6 +1,6 @@
 {
     "name": "liansu/view",
-    "description": "A extending module of The Liansu Framework.",
+    "description": "A extending module of The Liansu Framework",
     "keywords": [
         "framework",
         "liansu",
@@ -15,8 +15,8 @@
     ],
     "require": {
         "php": ">=7.0.0",
-        "liansu/core": "^0.0.1",
-        "liansu/template": "^0.0.1"
+        "liansu/core": ">=0.0.1,<1.0.0",
+        "liansu/template": ">=0.0.1,<1.0.0"
     },
     "autoload": {
         "psr-4": {
