@@ -22,7 +22,7 @@ class LiansuViewHandler implements ViewHandlerInterface
         $this->tplDir = $this->tplDir ?: App::instance()->rootDirectory . DIRECTORY_SEPARATOR . 'view';
 
         if (isset($config['cache_dir']) && $config['cache_dir']) {
-            $this->tplDir = $config['cache_dir'];
+            $this->cacheDir = $config['cache_dir'];
         }
         $this->cacheDir = $this->cacheDir ?: App::instance()->runtimeDirectory . DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . 'view';
 
@@ -55,28 +55,7 @@ class LiansuViewHandler implements ViewHandlerInterface
 
     public function display($file, $args = null)
     {
-        Response::printf($this->fetch($file, $args));
-    }
-
-    public function getParsedContent($content)
-    {
-        if (!$this->templateTranslator) {
-            $this->templateTranslator = new \liansu\template\LiansuTemplateTranslator();
-        }
-        if (is_string($this->templateTranslator)) { // 如果没有传入实例化对象的话，当即进行实例化
-            $driver = $this->templateTranslator;
-            if (!class_exists($driver)) {
-                throw new \Exception('No Template Translator Found');
-            }
-            $this->templateTranslator = new $driver();
-        }
-
-        if (!($this->templateTranslator instanceof TemplateTranslatorInterface)) {
-            throw new \Exception('Template Translator IS NOT The Instance Of TemplateTranslatorInterface');
-        }
-
-        $parsedContent = $this->translator->translate($content);
-        return $parsedContent;
+        Response::print($this->fetch($file, $args));
     }
 
     protected function getParsedFile($file)
@@ -110,5 +89,26 @@ class LiansuViewHandler implements ViewHandlerInterface
             }
         }
         return $tplFile;
+    }
+
+    public function getParsedContent($content)
+    {
+        if (!$this->templateTranslator) {
+            $this->templateTranslator = new \liansu\template\LiansuTemplateTranslator();
+        }
+        if (is_string($this->templateTranslator)) { // 如果没有传入实例化对象的话，当即进行实例化
+            $driver = $this->templateTranslator;
+            if (!class_exists($driver)) {
+                throw new \Exception('No Template Translator Found');
+            }
+            $this->templateTranslator = new $driver();
+        }
+
+        if (!($this->templateTranslator instanceof TemplateTranslatorInterface)) {
+            throw new \Exception('Template Translator IS NOT The Instance Of TemplateTranslatorInterface');
+        }
+
+        $parsedContent = $this->templateTranslator->translate($content);
+        return $parsedContent;
     }
 }

@@ -12,7 +12,7 @@ class View
         return $viewHandler->fetch($file, $args);
     }
 
-    protected static function getFile($rawFile)
+    public static function getFile($rawFile)
     {
         if (!$rawFile) {
             return self::getDefaultFile();
