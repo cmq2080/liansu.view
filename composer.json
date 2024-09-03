@@ -14,13 +14,11 @@
         }
     ],
     "require": {
-        "php": ">=7.0.0",
-        "liansu/core": ">=0.0.1,<1.0.0",
-        "liansu/template": ">=0.0.1,<1.0.0"
+        "php": ">=7.4.0"
     },
     "autoload": {
         "psr-4": {
-            "liansu\\view\\": "src/"
+            "liansu\\": "src/"
         }
     }
 }

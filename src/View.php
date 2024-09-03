@@ -1,45 +1,61 @@
 <?php
 
-namespace liansu\view;
+namespace liansu;
 
-use liansu\core\App;
-use liansu\view\interface_\ViewHandlerInterface;
+use liansu\App;
+use liansu\facade\Helper;
+use liansu\interfaces\IViewHandler;
 
 class View
 {
-    public static function fetch(ViewHandlerInterface $viewHandler, $file, $args = null)
+    public function fetch(IViewHandler $viewHandler, $reqFile, $args = [])
     {
-        return $viewHandler->fetch($file, $args);
+        $rawFile = $this->getRawFile($reqFile);
+        return $viewHandler->fetch($rawFile, $args);
     }
 
-    public static function getFile($rawFile)
+    public function display(IViewHandler $viewHandler, $reqFile, $args = [])
     {
-        if (!$rawFile) {
-            return self::getDefaultFile();
-        }
-        $runner = App::instance()->getRunner(); // 秒啊（指直接调用实例化后对象获取默认的runner及action）
-        if ($baseNamespace = App::instance()->getBaseNamespace()) {
-            $runner = substr($runner, strlen($baseNamespace) + 1);
-        }
-        $action = App::instance()->getAction();
-
-        $file = rtrim(str_replace('.', DIRECTORY_SEPARATOR, $rawFile), DIRECTORY_SEPARATOR);
-        if (strpos($file, DIRECTORY_SEPARATOR) === false) { // A => A/(defaultAction)
-            $file = $file . DIRECTORY_SEPARATOR . $action;
-        } else if (strpos($file, DIRECTORY_SEPARATOR) === 0) { // /A => (defaultRunner)/A
-            $file = $runner . $file;
-        }
-
-        return $file;
+        $rawFile = $this->getRawFile($reqFile);
+        $viewHandler->display($rawFile, $args);
     }
 
-    protected static function getDefaultFile()
+    /**
+     *     View        / ViewHandler
+     * reqFile->rawFile->tplFile-_>cacheFile
+     */
+    public function getRawFile($reqFile)
     {
-        $runner = App::instance()->getRunner(); // 秒啊（指直接调用实例化后对象获取默认的runner及action）
-        if ($baseNamespace = App::instance()->getBaseNamespace()) {
-            $runner = substr($runner, strlen($baseNamespace) + 1);
+        if (!$reqFile) {
+            return $this->getDefaultRawFile();
         }
+
+        $reqFile = Helper::str_replace(['/', '\\', '@'], '/', $reqFile);
+
+        if (strpos($reqFile, '/') === false) { // A => A/
+            $reqFile .= '/';
+        }
+
+        if (!explode('/', $reqFile)[0]) { // /A => (runner)/A
+            $runner = App::instance()->getRunner();
+            $reqFile = $runner . $reqFile;
+        }
+
+        if (!explode('/', $reqFile)[1]) { // A/ => A/(action)
+            $action = App::instance()->getAction();
+            $reqFile .= $action;
+        }
+
+        return $reqFile;
+    }
+
+    private function getDefaultRawFile()
+    {
+        $runner = App::instance()->getRunner();
+        $baseNamespace = App::instance()->getNamespace();
+        $runner = substr($runner, strlen($baseNamespace) + 1); // 要把目录分隔符的位置空出来
         $action = App::instance()->getAction();
-        return $runner . DIRECTORY_SEPARATOR . $action;
+
+        return $runner . '/' . $action;
     }
 }
