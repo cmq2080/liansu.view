@@ -3,11 +3,17 @@
 namespace liansu;
 
 use liansu\App;
-use liansu\facade\Helper;
 use liansu\interfaces\IViewHandler;
 
 class View
 {
+    /**
+     * Summary of fetch
+     * @param \liansu\interfaces\IViewHandler $viewHandler
+     * @param string $reqFile
+     * @param array $args
+     * @return string
+     */
     public function fetch(IViewHandler $viewHandler, $reqFile, $args = [])
     {
         $rawFile = $this->getRawFile($reqFile);
@@ -22,7 +28,9 @@ class View
 
     /**
      *     View        / ViewHandler
-     * reqFile->rawFile->tplFile-_>cacheFile
+     * reqFile->rawFile->tplFile-_>cachedFile
+     * @param string $reqFile
+     * @return string
      */
     public function getRawFile($reqFile)
     {
@@ -30,7 +38,7 @@ class View
             return $this->getDefaultRawFile();
         }
 
-        $reqFile = Helper::str_replace(['/', '\\', '@'], '/', $reqFile);
+        $reqFile = str_replace_all(['/', '\\', '@'], '/', $reqFile);
 
         if (strpos($reqFile, '/') === false) { // A => A/
             $reqFile .= '/';
@@ -49,6 +57,9 @@ class View
         return $reqFile;
     }
 
+    /**
+     * @return string
+     */
     private function getDefaultRawFile()
     {
         $runner = App::instance()->getRunner();
